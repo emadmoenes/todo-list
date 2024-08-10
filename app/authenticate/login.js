@@ -7,10 +7,12 @@ import {
   TextInput,
   View,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import Zocial from "@expo/vector-icons/Zocial";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import { useRouter } from "expo-router";
+import axios from "axios";
+import AsyncStorage from "@react-native-async-storage/async-storage"; // Import AsyncStorage
 
 const login = () => {
   const [email, setEmail] = useState("");
@@ -19,6 +21,38 @@ const login = () => {
   const navigateToPage = () => {
     router.replace("./register");
   };
+  useEffect(() => {
+    const checkLoginStatus = async () => {
+      try {
+        const token = await AsyncStorage.getItem("authToken");
+        if (token) {
+          router.replace("../tabs/home");
+        }
+      } catch (error) {
+        console.log(error);
+      }
+    };
+    checkLoginStatus();
+  }, []);
+  const handleLogin = () => {
+    const user = {
+      email: email,
+      password: password,
+    };
+
+    axios
+      .post("http://192.168.1.14:8081/login", user)
+      .then((response) => {
+        const token = response.data.token;
+        AsyncStorage.setItem("authToken", token);
+        router.replace("../tabs/home");
+      })
+      .catch((error) => {
+        console.error(error);
+        Alert.alert("Login failed", "Please check your credentials");
+      });
+  };
+
   return (
     <SafeAreaView
       style={{ flex: 1, backgroundColor: "white", alignItems: "center" }}
@@ -112,6 +146,7 @@ const login = () => {
           </View>
           <View style={{ marginTop: 60 }} />
           <Pressable
+            onPress={handleLogin}
             style={{
               width: 200,
               backgroundColor: "#6699CC",
