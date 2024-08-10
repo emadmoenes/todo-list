@@ -1,4 +1,5 @@
 import {
+  Alert,
   KeyboardAvoidingView,
   Pressable,
   SafeAreaView,
@@ -11,13 +12,35 @@ import React, { useState } from "react";
 import Zocial from "@expo/vector-icons/Zocial";
 import Fontisto from "@expo/vector-icons/Fontisto";
 import { useRouter } from "expo-router";
+import FontAwesome from "@expo/vector-icons/FontAwesome";
+import axios from "axios";
 
 const register = () => {
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const router = useRouter();
   const navigateToPage = () => {
     router.replace("./login");
+  };
+  const handleRegister = () => {
+    const user = {
+      username: username,
+      email: email,
+      password: password,
+    };
+
+    axios
+      .post("http://192.168.1.14:8081/register", user)
+      .then((response) => {
+        Alert.alert("Registerded successfull", "You have been registered");
+        setEmail("");
+        setPassword("");
+        setUsername("");
+      })
+      .catch((error) => {
+        Alert.alert("Registeration failed", "an error occured");
+      });
   };
   return (
     <SafeAreaView
@@ -36,6 +59,36 @@ const register = () => {
         </View>
 
         <View style={{ marginTop: 70 }}>
+          <View
+            style={{
+              flexDirection: "row",
+              alignItems: "center",
+              gap: 5,
+              backgroundColor: "#E0E0E0",
+              paddingVertical: 5,
+              borderRadius: 10,
+              marginTop: 30,
+            }}
+          >
+            <FontAwesome
+              style={{ marginLeft: 10, color: "gray" }}
+              name="user"
+              size={24}
+              color="gray"
+            />
+            <TextInput
+              value={username}
+              onChangeText={(text) => setUsername(text)}
+              placeholder="enter your username"
+              style={{
+                color: "gray",
+                marginVertical: 10,
+                width: 300,
+                fontSize: username ? 17 : 15,
+              }}
+            />
+          </View>
+
           <View
             style={{
               flexDirection: "row",
@@ -92,7 +145,7 @@ const register = () => {
                   color: "gray",
                   marginVertical: 10,
                   width: 300,
-                  fontSize: email ? 17 : 15,
+                  fontSize: password ? 17 : 15,
                 }}
               />
             </View>
@@ -100,6 +153,7 @@ const register = () => {
 
           <View style={{ marginTop: 60 }} />
           <Pressable
+            onPress={handleRegister}
             style={{
               width: 200,
               backgroundColor: "#6699CC",
